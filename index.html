@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyperspeed Background</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="hyperspeed"></canvas>
+    <script>
+      const canvas = document.getElementById("hyperspeed");
+      const ctx = canvas.getContext("2d");
+      let stars = [];
+      let speed = 5;
+      const starCount = 800;
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      function createStar() {
+        const z = Math.random() * canvas.width;
+        return {
+          x: 0,
+          y: 0,
+          z,
+          prevZ: z,
+          angle: Math.random() * Math.PI * 2,
+        };
+      }
+      function resetStar(star) {
+        star.z = canvas.width;
+        star.prevZ = canvas.width;
+        star.angle = Math.random() * Math.PI * 2;
+      }
+      function initStars() {
+        stars = [];
+        for (let i = 0; i < starCount; i++) {
+          stars.push(createStar());
+        }
+      }
+      function animate() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 1.5;
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        for (let star of stars) {
+          star.prevZ = star.z;
+          star.z -= speed;
+          if (star.z <= 1) {
+            resetStar(star);
+            continue;
+          }
+          const sx = cx + Math.cos(star.angle) * star.z;
+          const sy = cy + Math.sin(star.angle) * star.z;
+          const psx = cx + Math.cos(star.angle) * star.prevZ;
+          const psy = cy + Math.sin(star.angle) * star.prevZ;
+          ctx.beginPath();
+          ctx.moveTo(psx, psy);
+          ctx.lineTo(sx, sy);
+          ctx.stroke();
+        }
+        requestAnimationFrame(animate);
+      }
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        initStars();
+      });
+      resizeCanvas();
+      initStars();
+      animate();
+    </script>
+  </body>
+</html>
