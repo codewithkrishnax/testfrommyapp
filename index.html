@@ -2,34 +2,320 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New File</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Todo App</title>
     <style>
-      body {
+      * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         height: 100vh;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .app-container {
+        width: 100%;
+        max-width: 480px;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 24px 24px;
+        color: white;
+      }
+      .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .header p {
+        opacity: 0.9;
+        font-size: 14px;
+      }
+      .stats {
+        display: flex;
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .stat-card {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+      }
+      .stat-label {
+        font-size: 11px;
+        opacity: 0.9;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+      }
+      .input-container {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      #todoInput {
+        flex: 1;
+        padding: 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 16px;
+        font-size: 15px;
+        transition: all 0.3s;
+        outline: none;
+      }
+      #todoInput:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      }
+      #addBtn {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      #addBtn:active {
+        transform: scale(0.95);
+      }
+      .todo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .todo-item {
+        background: white;
+        padding: 16px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .todo-item.completed {
+        opacity: 0.6;
+      }
+      .checkbox {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #d0d0d0;
+        border-radius: 8px;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f2f2f2;
-        color: #666;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        transition: all 0.3s;
+        flex-shrink: 0;
       }
-      .hint {
-        text-align: center;
+      .checkbox.checked {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+      }
+      .checkbox.checked::after {
+        content: "✓";
+        color: white;
         font-size: 14px;
-        line-height: 1.6;
+        font-weight: bold;
+      }
+      .todo-text {
+        flex: 1;
+        font-size: 15px;
+        color: #333;
+        transition: all 0.3s;
+      }
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: #999;
+      }
+      .delete-btn {
+        width: 32px;
+        height: 32px;
+        background: #ff4757;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .delete-btn:active {
+        transform: scale(0.9);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #999;
+      }
+      .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+      }
+      .empty-state-text {
+        font-size: 16px;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #d0d0d0;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #b0b0b0;
       }
     </style>
   </head>
   <body>
-    <div class="hint">
-      <strong>Start typing HTML, CSS, or JavaScript</strong>
-      <br />
-      Preview updates instantly ✨
+    <div class="app-container">
+      <div class="header">
+        <h1>My Tasks</h1>
+        <p id="dateDisplay"></p>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="totalTasks">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completedTasks">0</div>
+            <div class="stat-label">Done</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingTasks">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="input-container">
+          <input type="text" id="todoInput" placeholder="Add a new task..." />
+          <button id="addBtn">+</button>
+        </div>
+        <div id="todoList" class="todo-list"></div>
+        <div id="emptyState" class="empty-state" style="display: none">
+          <div class="empty-state-icon">📝</div>
+          <div class="empty-state-text">
+            No tasks yet. Add one to get started!
+          </div>
+        </div>
+      </div>
     </div>
     <script>
-      // Write JavaScript here
+      let todos = [];
+      function updateDate() {
+        const now = new Date();
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        document.getElementById("dateDisplay").textContent =
+          now.toLocaleDateString("en-US", options);
+      }
+      function updateStats() {
+        const total = todos.length;
+        const completed = todos.filter((t) => t.completed).length;
+        const pending = total - completed;
+        document.getElementById("totalTasks").textContent = total;
+        document.getElementById("completedTasks").textContent = completed;
+        document.getElementById("pendingTasks").textContent = pending;
+      }
+      function renderTodos() {
+        const todoList = document.getElementById("todoList");
+        const emptyState = document.getElementById("emptyState");
+        if (todos.length === 0) {
+          todoList.innerHTML = "";
+          emptyState.style.display = "block";
+          return;
+        }
+        emptyState.style.display = "none";
+        todoList.innerHTML = todos
+          .map(
+            (todo, index) => `
+                <div class="todo-item ${
+                  todo.completed ? "completed" : ""
+                }" data-index="${index}">
+                    <div class="checkbox ${
+                      todo.completed ? "checked" : ""
+                    }" onclick="toggleTodo(${index})"></div>
+                    <div class="todo-text">${todo.text}</div>
+                    <button class="delete-btn" onclick="deleteTodo(${index})">×</button>
+                </div>
+            `
+          )
+          .join("");
+        updateStats();
+      }
+      function addTodo() {
+        const input = document.getElementById("todoInput");
+        const text = input.value.trim();
+        if (text) {
+          todos.push({
+            text,
+            completed: false
+          });
+          input.value = "";
+          renderTodos();
+        }
+      }
+      function toggleTodo(index) {
+        todos[index].completed = !todos[index].completed;
+        renderTodos();
+      }
+      function deleteTodo(index) {
+        todos.splice(index, 1);
+        renderTodos();
+      }
+      document.getElementById("addBtn").addEventListener("click", addTodo);
+      document.getElementById("todoInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addTodo();
+      });
+      updateDate();
+      renderTodos();
     </script>
   </body>
 </html>
